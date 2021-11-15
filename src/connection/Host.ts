@@ -21,7 +21,10 @@ interface Options<State = any, Action extends AnyAction = AnyAction> {
   config?: any;
 }
 
-class Host<State = any, Action extends AnyAction = AnyAction> extends EventEmitter<Events> {
+class Host<
+  State = any,
+  Action extends AnyAction = AnyAction
+> extends EventEmitter<Events> {
   #self: Peer;
   #peers: DataConnection[];
   #eventId: number = 0;
@@ -53,12 +56,14 @@ class Host<State = any, Action extends AnyAction = AnyAction> extends EventEmitt
     this.send('update', {
       diff,
     });
-  }
+  };
 
   #handleConnection = (peer: DataConnection) => {
     this.#peers.push(peer);
     const handleSetup = (action: PeerAction) => {
-      if (action.type !== 'setup') return;
+      if (action.type !== 'setup') {
+        return;
+      }
       const handleData = this.#handleData.bind(null, peer);
       peer.off('data', handleSetup);
       peer.on('data', handleData);
@@ -70,16 +75,18 @@ class Host<State = any, Action extends AnyAction = AnyAction> extends EventEmitt
       });
     };
     peer.on('data', handleSetup);
-  }
+  };
 
   #handleData = (peer: DataConnection, peerAction: PeerAction) => {
     const { type, payload: action, meta } = peerAction;
-    if (type !== 'action') return;
+    if (type !== 'action') {
+      return;
+    }
     const responseName = `response_${meta.id}`;
     const run = async () => {
       await Promise.resolve(this.#options.store.dispatch(action));
       return true;
-    } 
+    };
     run()
       .then((result) => {
         peer.send({
@@ -93,12 +100,12 @@ class Host<State = any, Action extends AnyAction = AnyAction> extends EventEmitt
           type: responseName,
           error: err.toString(),
         });
-      })
-  }
+      });
+  };
 
   public dispatch = (action: Action) => {
     return this.#options.store.dispatch(action);
-  }
+  };
 
   public send = async (type: string, payload: any) => {
     const id = this.#eventId++;
@@ -108,19 +115,20 @@ class Host<State = any, Action extends AnyAction = AnyAction> extends EventEmitt
         payload,
         meta: {
           id,
-        }
-      }) 
-    })
-  }
-
-  public static create = (options: Options) => new Promise<Host>((resolve, reject) => {
-    const peer = new Peer(options.pass);
-    peer.on('open', () => {
-      const host = new Host(peer, options);
-      resolve(host);
+        },
+      });
     });
-    peer.on('error', reject);
-  });
+  };
+
+  public static create = (options: Options) =>
+    new Promise<Host>((resolve, reject) => {
+      const peer = new Peer(options.pass);
+      peer.on('open', () => {
+        const host = new Host(peer, options);
+        resolve(host);
+      });
+      peer.on('error', reject);
+    });
 }
 
 export default Host;

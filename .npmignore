@@ -1,4 +1,4 @@
 /node_module
+/coverage
 /*.log
-/.parcel-cache
 /.git

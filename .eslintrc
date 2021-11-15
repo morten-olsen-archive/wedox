@@ -1,0 +1,8 @@
+{
+  "extends": "@react-native-community",
+  "rules": {
+    "prettier/prettier": [1, {
+      "singleQuote": true
+    }]
+  }
+}

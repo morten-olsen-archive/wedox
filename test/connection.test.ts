@@ -8,14 +8,12 @@ describe('connection', () => {
 
   beforeEach(async () => {
     reset();
-    store = createStore(
-      (s: any[] = [], a) => [...s, a],
-    );
+    store = createStore((s: any[] = [], a) => [...s, a]);
     host = await Host.create({
       pass: 'demo',
       store,
     });
-  })
+  });
 
   it('should be able to create a host', async () => {
     expect(host.id).toBeDefined();
@@ -32,7 +30,6 @@ describe('connection', () => {
     expect(host.state[1]).toEqual({
       type: 'hello',
       payload: 'world',
-    })
-  })
-})
-
+    });
+  });
+});
